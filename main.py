@@ -1,7 +1,7 @@
 import os
 import curses
 import random
-from Line2D import Line2D
+from geometry.Line2D import Line2D
 
 
 class Display:
