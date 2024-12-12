@@ -1,6 +1,6 @@
 from Geometry import Geometry
 from Line2D import Line2D
-from typing import Generator, List, Tuple, Self
+from typing import Generator, List, Tuple, Self, Callable
 
 class Curve2D(Geometry):
     """
@@ -48,16 +48,20 @@ class Curve2D(Geometry):
     def quadraticBezier(p1: Tuple[int,int],
                         mid: Tuple[int,int],
                         p2: Tuple[int,int],
-                        scaleForInterval: bool = True
-                        ):
+                        ) -> Callable[[float], Tuple[float,float]]:
         """
         Returns a lambda function that takes a float `t` and returns
         the quadratic bezier curve defined by points `p1, mid, p2` at time `t`.
-        If `scaleForInterval` (def. True) is true, adjusts the formula so that
-        it returns the point dividing the curve with ratio `t:1-t`.
         """
+        p1x, p1y = p1
+        p2x, p2y = p2
+        mx, my = mid
 
-        pass
+        fx = lambda t: (1-t) * ((1 - t) * p1x + t * mx) + t * ((1 - t) * mx + t * p2x)
+        fy = lambda t: (1-t) * ((1 - t) * p1y + t * my) + t * ((1 - t) * my + t * p2y)
+
+        return lambda t: (fx(t),fy(t))
+
     ### GEOMETRY
 
     def genPoints(self,
