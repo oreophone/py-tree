@@ -45,9 +45,9 @@ class Curve2D(Geometry):
     ### HELPERS
 
     @staticmethod
-    def quadraticBezier(p1: Tuple[int,int],
-                        mid: Tuple[int,int],
-                        p2: Tuple[int,int],
+    def quadraticBezier(p1: Tuple[float,float],
+                        mid: Tuple[float,float],
+                        p2: Tuple[float,float],
                         ) -> Callable[[float], Tuple[float,float]]:
         """
         Returns a lambda function that takes a float `t` and returns
@@ -61,6 +61,36 @@ class Curve2D(Geometry):
         fy = lambda t: (1-t) * ((1 - t) * p1y + t * my) + t * ((1 - t) * my + t * p2y)
 
         return lambda t: (fx(t),fy(t))
+
+    @staticmethod
+    def approximateBezierLength(p1: Tuple[float,float],
+                                mid: Tuple[float,float],
+                                p2: Tuple[float,float],
+                                interval: Tuple[float,float],
+                                numSamples: int = -1
+                                ) -> float:
+        """
+        Approximates the length of the quadratic bezier curve defined by
+        points `p1, mid, p2` using `numSamples` samples of the arc length
+        function. If `numSamples` is unspecified, calculates an amount required
+        for reasonable accuracy (0.01).
+        """
+        return 0
+
+    @staticmethod
+    def approximatePointOnBezier(p1: Tuple[float,float],
+                                 mid: Tuple[float,float],
+                                 p2: Tuple[float,float],
+                                 interval: float,
+                                 iters: int = 10
+                                 ) -> Tuple[float,float]:
+        """
+        Approximates the point on the quadratic bezier curve defined by points
+        `p1, mid, p2` at interval `interval`, with `iters` iterations of the
+        algorithm (default 10).
+        """
+        return (0,0)
+
 
     ### GEOMETRY
 
