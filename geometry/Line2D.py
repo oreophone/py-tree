@@ -5,6 +5,7 @@ Supports 2-point, as well as centre/angle representations.
 
 from typing import Tuple, List, Generator, Self
 from Geometry import Geometry
+from Point2D import Point2D
 import math
 class Line2D(Geometry):
     """
@@ -14,8 +15,8 @@ class Line2D(Geometry):
     ### UTILS
 
     def __init__(self,
-                 p1: Tuple[float, float],
-                 p2: Tuple[float, float]):
+                 p1: Point2D,
+                 p2: Point2D):
         """
         Creats a Line2D instance from 2 points.
         """
@@ -29,8 +30,8 @@ class Line2D(Geometry):
 
     @classmethod
     def fromPoints(cls,
-                   p1: Tuple[float, float],
-                   p2: Tuple[float, float]):
+                   p1: Point2D,
+                   p2: Point2D):
         """
         Creates a Line2D instance from 2 points.
         """
@@ -39,7 +40,7 @@ class Line2D(Geometry):
 
     @classmethod
     def fromAngle(cls,
-                  c: Tuple[float, float],
+                  c: Point2D,
                   length: float,
                   theta: float,
                   isDegrees: bool = True):
@@ -55,23 +56,25 @@ class Line2D(Geometry):
         else:
             angle = theta
 
-        p2x: float = length * math.cos(angle) + p1[0]
-        p2y: float = length * math.sin(angle) + p1[1]
+        p2x: float = length * math.cos(angle) + p1.x
+        p2y: float = length * math.sin(angle) + p1.y
 
-        p2 = (p2x, p2y)
+        p2 = Point2D(p2x,p2y)
         return cls(p1,p2)
 
     @classmethod
     def fromDiameter(cls,
-                     center: Tuple[float, float],
+                     center: Point2D,
                      radius: float,
                      theta: float,
                      isDegrees: bool = True):
         """
         Creates a Line2D instance representing a diameter of a circle with
         a given `center` and `radius`, with angle `theta` (default degrees).
+
+        TODO
         """
-        return cls((0,0),(0,0)) # TODO
+        return cls(Point2D.zero(),Point2D.zero())
     
     ### GETTERS 
 
@@ -84,8 +87,8 @@ class Line2D(Geometry):
         treated as the center.
         """
 
-        lengthX = self.p2[0] - self.p1[0]
-        lengthY = self.p2[1] - self.p1[1]
+        lengthX = self.p2.x - self.p1.x
+        lengthY = self.p2.y - self.p1.y
 
         if lengthX == 0:
             angleRads = math.pi/2 if lengthY > 0 else -math.pi/2
@@ -108,8 +111,8 @@ class Line2D(Geometry):
         returns the length in taxicab geometry.
         """
 
-        lengthX = abs(self.p2[0] - self.p1[0])
-        lengthY = abs(self.p2[1] - self.p1[1])
+        lengthX = abs(self.p2.x - self.p1.x)
+        lengthY = abs(self.p2.x - self.p1.y)
         if useTaxicabDistance:
             return float(lengthX + lengthY)
 
@@ -128,8 +131,8 @@ class Line2D(Geometry):
         has start/end points outside the range [0,1]. A backwards interval
         (e.g [1,0]) will generate the points in reverse.
         """
-        lineRise = int(self.p2[1]) - int(self.p1[1])
-        lineRun = int(self.p2[0]) - int(self.p1[0])
+        lineRise = int(self.p2.y) - int(self.p1.y)
+        lineRun = int(self.p2.x) - int(self.p1.x)
         taxicabDist = abs(lineRise) + abs(lineRun)
 
         if interval[0] < 0 or interval[0] > 1:
@@ -157,8 +160,8 @@ class Line2D(Geometry):
             indexRange = range(startIndex, endIndex)
 
         for i in indexRange:
-            yield (int(self.p1[0] + math.floor(xStep * i)),
-                   int(self.p1[1] + math.floor(yStep * i)))
+            yield (int(self.p1.x + math.floor(xStep * i)),
+                   int(self.p1.y + math.floor(yStep * i)))
 
     def getPoint(self, interval: float) -> Tuple[int,int]:
         """
@@ -167,9 +170,9 @@ class Line2D(Geometry):
         """
         
         if interval <= 0:
-            return (int(self.p1[0]), int(self.p1[1]))
+            return (int(self.p1.x), int(self.p1.y))
         if interval >= 1:
-            return (int(self.p2[0]), int(self.p2[1]))
+            return (int(self.p2.x), int(self.p2.y))
 
         lineGen = self.genPoints((interval,1.0))
         return next(lineGen)
@@ -185,7 +188,7 @@ class Line2D(Geometry):
         return False # TODO
 
     def pointDistance(self,
-                      point: Tuple[int,int],
+                      point: Point2D,
                       returnSquare: bool = False,
                       useTaxicabDistance: bool = False
                       ) -> float:
@@ -215,22 +218,22 @@ class Line2D(Geometry):
         if ratioEnd < 0: ratioEnd = 0
 
         lineRadius = self.getLength() / 2
-        rise = (self.p2[1] - self.p1[1]) / 2
-        run = (self.p2[0] - self.p1[0]) / 2
-        centreX = self.p1[0] + run
-        centreY = self.p1[1] + rise
+        rise = (self.p2.y - self.p1.y) / 2
+        run = (self.p2.x - self.p1.x) / 2
+        centreX = self.p1.x + run
+        centreY = self.p1.y + rise
         # p1
         startDelta = (ratioStart - 1) * lineRadius
-        p2dx = (-self.p1[0] + centreX) * startDelta / lineRadius
-        p2dy = (-self.p1[1] + centreY) * startDelta / lineRadius
-        self.p1 = (self.p1[0] - p2dx,
-                   self.p1[1] - p2dy)
+        p2dx = (-self.p1.x + centreX) * startDelta / lineRadius
+        p2dy = (-self.p1.y + centreY) * startDelta / lineRadius
+        self.p1 = (self.p1.x - p2dx,
+                   self.p1.y - p2dy)
         # p2
         endDelta = (ratioEnd - 1) * lineRadius
-        p2dx = (self.p2[0] - centreX) * endDelta / lineRadius
-        p2dy = (self.p2[1] - centreY) * endDelta / lineRadius
-        self.p2 = (self.p2[0] + p2dx,
-                   self.p2[1] + p2dy)
+        p2dx = (self.p2.x - centreX) * endDelta / lineRadius
+        p2dy = (self.p2.y - centreY) * endDelta / lineRadius
+        self.p2 = (self.p2.x + p2dx,
+                   self.p2.y + p2dy)
 
 
 
