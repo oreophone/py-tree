@@ -47,4 +47,4 @@ class Pixel:
         """
         Approximates the given RGB colour in the ansi-256 colour scheme.
         """
-        return 0
+        raise NotImplementedError("Pixel.rgbToAnsi: Not implemented.")

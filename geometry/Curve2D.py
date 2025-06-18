@@ -14,6 +14,8 @@ class Curve2D(Geometry):
     * `curveStrengths`: A list of `n - 2` non-negative floats representing
     the strengths of each subsequent curve. These will be combined with `curveStart` to calculate each midpoint in a way that gives the
     smoothest combined curve possible.
+
+    TODO write new class `Bezier2D`, then refactor `Curve2D` to be a list of `Bezier2D`s
     """
     def __init__(self,
                  points: List[Tuple[float,float]], # n
