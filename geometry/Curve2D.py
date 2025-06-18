@@ -99,11 +99,6 @@ class Curve2D(Geometry):
                   ) -> Generator[Tuple[int,int]]:
         raise NotImplementedError("Curve2D.genPoints: Not implemented.")
 
-    def getPoints(self,
-                  interval: Tuple[float,float] = (0.0,1.0)
-                  ) -> List[Tuple[int,int]]:
-        raise NotImplementedError("Curve2D.getPoints: Not implemented.")
-
     def getPoint(self,
                  interval: float
                  ) -> Tuple[int, int]:

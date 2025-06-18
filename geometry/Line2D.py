@@ -160,15 +160,6 @@ class Line2D(Geometry):
             yield (int(self.p1[0] + math.floor(xStep * i)),
                    int(self.p1[1] + math.floor(yStep * i)))
 
-    def getPoints(self,
-                  interval: Tuple[float,float] = (0.0,1.0)
-                  ) -> List[Tuple[int,int]]:
-        """
-        Returns the list of points that comprise this line, from
-        `p1` to `p2`.
-        """
-        return [i for i in self.genPoints(interval)] # TODO optimise
-
     def getPoint(self, interval: float) -> Tuple[int,int]:
         """
         Returns the point at the specified `interval` from point 1.

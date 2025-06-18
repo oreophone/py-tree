@@ -7,7 +7,6 @@ class Geometry(object):
 
     ABSTRACT METHODS:
     * `genPoints`
-    * `getPoints`
     * `getPoint`
     """
 
@@ -26,10 +25,8 @@ class Geometry(object):
                   ) -> List[Tuple[int,int]]:
         """
         Returns a list of points on this path within the specified `interval`.
-
-        Required to be implemented by all subclasses.
         """
-        raise NotImplementedError("Geometry.getPoints: Not implemented.")
+        return list(self.genPoints())
 
     def getPoint(self,
                  interval: float

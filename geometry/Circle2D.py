@@ -5,6 +5,8 @@ class Circle2D(Geometry):
     """
     A circle defined by a center and radius, designed
     for terminal use.
+
+    TODO everything
     """
 
     def __init__(self):
@@ -19,11 +21,6 @@ class Circle2D(Geometry):
                   interval: Tuple[float,float] = (0.0,1.0)
                   ) -> Generator[Tuple[int,int]]:
         raise NotImplementedError("Circle2D.genPoints: Not implemented.")
-
-    def getPoints(self,
-                  interval: Tuple[float,float] = (0.0,1.0)
-                  ) -> List[Tuple[int,int]]:
-        raise NotImplementedError("Circle2D.getPoints: Not implemented.")
 
     def getPoint(self,
                  interval: float
