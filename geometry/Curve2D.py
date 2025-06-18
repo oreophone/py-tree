@@ -7,13 +7,13 @@ class Curve2D(Geometry):
     A smooth curve built from a series of quadratic
     Bezier curves, designed for terminal use. Built from three main
     components:
-        `points`: A list of `n` points in 2D space.
-        `curveStart`: A point representing the midpoint of the first
-        bezier curve.
-        `curveStrengths`: A list of `n - 2` non-negative floats representing
-        the strengths of each subsequent curve. These will be combined with
-        `curveStart` to calculate each midpoint in a way that gives the
-        smoothest combined curve possible.
+
+    * `points`: A list of `n` points in 2D space.
+    * `curveStart`: A point representing the midpoint of the first
+    bezier curve.
+    * `curveStrengths`: A list of `n - 2` non-negative floats representing
+    the strengths of each subsequent curve. These will be combined with `curveStart` to calculate each midpoint in a way that gives the
+    smoothest combined curve possible.
     """
     def __init__(self,
                  points: List[Tuple[float,float]], # n
