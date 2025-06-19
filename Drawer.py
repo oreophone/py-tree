@@ -13,7 +13,9 @@ class Drawer:
 
     TEMPLATE METHODS (may be overriden for alternate functionality):
     * `getNextChar`
-    * `getNextColour`
+    * `getNextFGColour`
+    * `getNextBGColour`
+    * `getNextZLayer`
     """
 
     def __init__(self,
@@ -52,9 +54,15 @@ class Drawer:
         Creates a generator that outputs `Pixel`'s to be drawn
         to the terminal. The following parameters can be optionally set:
             `thickness=1`: The thickness of the resulting line
-            # todo add more
+            # TODO add more
         """
-        pass
+        for pos in self.geometry.genPoints():
+            ch = self.getNextChar() # TODO optimise to not call rng so many times?
+            fg = self.getNextFGColour()
+            bg = self.getNextBGColour()
+            zLayer = self.getNextZLayer()
+            yield Pixel(pos,ch,fg,bg,zLayer)
+
 
     def getNextChar(self) -> str:
         """
@@ -66,11 +74,24 @@ class Drawer:
         return self._rng.choices(self.charPalette, self.charWeights)[0]
 
     
-    def getNextColour(self) -> ANSIColour:
+    def getNextFGColour(self) -> ANSIColour:
         """
-        Generates the next colour to be used. In the default implementation, chooses uniformly
+        Generates the next foreground to be used. In the default implementation, chooses uniformly
         randomly from the `colourPalette` with weights `colourWeights`.
         """
         if len(self.colourPalette) == 1:
             return self.colourPalette[0]
         return self._rng.choices(self.colourPalette, self.colourWeights)[0]
+    
+    def getNextBGColour(self) -> ANSIColour:
+        """
+        Generates the next background colour to be used. In the default implementation, always chooses
+        the default BG colour.
+        """
+        return Pixel.BG_DEFAULT
+    
+    def getNextZLayer(self) -> int:
+        """
+        Returns the Z layer to draw the next pixel on. In the default implementation, always returns 0.
+        """
+        return 0
