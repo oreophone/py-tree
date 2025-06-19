@@ -24,13 +24,28 @@ class Drawer:
                  colourWeights: None | List[float] = None,
                  seed: int = -1
                  ):
+        if len(charPalette) == 0:
+            raise ValueError("Drawer: empty charPalette")
+        if len(colourPalette) == 0:
+            raise ValueError("Drawer: empty colourPalette")
+        if charWeights is not None and len(charWeights) != len(charPalette):
+            raise ValueError("Drawer: lengths of charWeights and charPalette do not match")
+        if colourWeights is not None and len(colourWeights) != len(colourPalette):
+            raise ValueError("Drawer: lengths of colourWeights and colourPalette do not match")
+
         self.geometry = geometry
         self.charPalette = charPalette
         self.colourPalette = colourPalette
+        self.charWeights = charWeights
+        self.colourWeights = colourWeights
+
         if seed == -1:
             self.seed = random.randint(0,2 ** 32 - 1)
         else:
             self.seed = seed
+
+        # private RNG
+        self._rng = random.Random(self.seed)
 
     def genPixels(self, **kwargs) -> Generator[Pixel]:
         """
@@ -46,11 +61,16 @@ class Drawer:
         Generates the next character to be drawn. In the default implmentation, chooses
         uniformly randomly from the `charPalette` with weights `charWeights`.
         """
-        raise NotImplementedError("Drawer.getNextChar: Not implemented.")
+        if len(self.charPalette) == 1:
+            return self.charPalette[0]
+        return self._rng.choices(self.charPalette, self.charWeights)[0]
+
     
     def getNextColour(self) -> ANSIColour:
         """
         Generates the next colour to be used. In the default implementation, chooses uniformly
         randomly from the `colourPalette` with weights `colourWeights`.
         """
-        raise NotImplementedError("Drawer.getNextColour: Not implemented.")
+        if len(self.colourPalette) == 1:
+            return self.colourPalette[0]
+        return self._rng.choices(self.colourPalette, self.colourWeights)[0]
