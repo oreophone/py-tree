@@ -18,7 +18,7 @@ class Geometry(object):
 
         Required to be implemented by all subclasses.
         """
-        raise NotImplementedError("Geometry.genPoints: Not implemented.")
+        raise NotImplementedError("Geometry.genPoints: Abstract method not implemented.")
 
     def getPoints(self,
                   interval: Tuple[float,float] = (0.0,1.0)
@@ -36,4 +36,4 @@ class Geometry(object):
 
         Required to be implemented by all subclasses.
         """
-        raise NotImplementedError("Geometry.getPoint: Not implemented.")
+        raise NotImplementedError("Geometry.getPoint: Abstract method not implemented.")

@@ -46,11 +46,11 @@ class Drawer:
         Generates the next character to be drawn. In the default implmentation, chooses
         uniformly randomly from the `charPalette` with weights `charWeights`.
         """
-        return ""
+        raise NotImplementedError("Drawer.getNextChar: Not implemented.")
     
     def getNextColour(self) -> ANSIColour:
         """
         Generates the next colour to be used. In the default implementation, chooses uniformly
         randomly from the `colourPalette` with weights `colourWeights`.
         """
-        return ANSIColour(0,0,0)
+        raise NotImplementedError("Drawer.getNextColour: Not implemented.")
