@@ -1,8 +1,7 @@
-from ANSIColour import ANSIColour
+from display.ANSIColour import ANSIColour
 from geometry.Geometry import Geometry
 from Pixel import Pixel
-from geometry.Line2D import Line2D
-from typing import Generator, List, Tuple
+from typing import Generator, List
 import random
 
 class Drawer:

@@ -1,4 +1,3 @@
-
 class ANSIColour:
     """
     Represents an ANSI256-compatible colour as
