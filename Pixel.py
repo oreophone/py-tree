@@ -1,4 +1,5 @@
 from typing import Tuple
+from ANSIColour import ANSIColour
 
 class Pixel:
     """
@@ -11,7 +12,8 @@ class Pixel:
     R = E + "0m"
     FG = lambda x: Pixel.E + f"38;5;{x}m" if x != None else ""
     BG = lambda x: Pixel.E + f"48;5;{x}m" if x != None else ""
-
+    FG_DEFAULT = ANSIColour(5,5,5) # white
+    BG_DEFAULT = ANSIColour(0,0,0) # black
 
 
     ### INIT
@@ -19,32 +21,16 @@ class Pixel:
     def __init__(self,
                  position: Tuple[int,int],
                  ch: str,
-                 fg: int = -1, # 0 - 255
-                 bg: int = -1, # 0 - 255
+                 fg: ANSIColour = FG_DEFAULT,
+                 bg: ANSIColour = BG_DEFAULT, 
                  zLayer: int = 0
                  ):
         self.position = position
         self.ch = ch[0]
-        if fg == -1:
-            self.fg = None
-        else:
-            self.fg = fg
-
-        if bg == -1:
-            self.bg = None
-        else:
-            self.bg = bg
-
+        self.fg = fg
+        self.bg = bg
         self.zLayer = zLayer
 
     def __str__(self) -> str:
-        return Pixel.FG(self.fg) + Pixel.BG(self.bg) + self.ch + Pixel.R
-
-    ### COLOURS
-
-    @staticmethod
-    def rgbToAnsi(r: int, g: int, b: int) -> int:
-        """
-        Approximates the given RGB colour in the ansi-256 colour scheme.
-        """
-        raise NotImplementedError("Pixel.rgbToAnsi: Not implemented.")
+        return Pixel.FG(self.fg.getCode()) + Pixel.BG(self.bg.getCode()) + self.ch + Pixel.R
+    
