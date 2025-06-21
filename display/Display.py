@@ -3,7 +3,7 @@ import curses
 from display.Drawer import Drawer
 from display.Pixel import Pixel
 from display.ANSIColour import ANSIColour
-from typing import Iterable
+from typing import Iterable, Iterator
 
 class Display:
     """
@@ -100,7 +100,7 @@ class Display:
         """
         x,y = pixel.position
         if self.useNatural:
-            y = self.height - y
+            y = self.height - y - 1
 
         colorPair = self.getColorPair(pixel.fg, pixel.bg)
         self.stdscr.addch(
@@ -120,14 +120,15 @@ class Display:
         for o in objs:
             if type(o) == Drawer:
                 pixelIter = o.genPixels()
-            elif type(o) == Iterable[Pixel]:
-                pixelIter = o
             elif type(o) == Pixel:
                 self.drawPixel(o, isBatched=True)
                 continue
             else:
-                raise ValueError("Display.draw: invalid argument type - " + str(type(o)))
-            
+                pixelIter = o
+            try:
+                iter(pixelIter)
+            except TypeError:
+                raise TypeError("Display.draw: invalid argument type - " + str(type(o)))
             for pixel in pixelIter:
                 self.drawPixel(pixel, isBatched=True)
         
