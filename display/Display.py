@@ -1,4 +1,5 @@
 import curses
+
 from display.Pixel import Pixel
 from display.ANSIColour import ANSIColour
 
@@ -21,10 +22,13 @@ class Display:
     def __init__(self,
                  stdscr: curses.window,
                  refreshRate: int = REFRESH_RATE_HZ,
+                 useNatural: bool = True,
                  doDebug: bool = False):
         self.stdscr = stdscr
         self.height, self.width = stdscr.getmaxyx()
         self.refreshRate = refreshRate
+        
+        self.useNatural = useNatural
 
         self.resetStats()
 
@@ -42,7 +46,6 @@ class Display:
         """
         Resets all the stored statistics (e.g. number of refreshes since init) to their defaults.
         """
-        self.numUpdates = 0       # number of global updates
         self.numRefreshes = 0     # number of window refreshes
         self.pixelsDrawn = 0      # number of pixels drawn
         self.debugMessage = "Hello, world!"
@@ -85,25 +88,32 @@ class Display:
 
     def drawPixel(self,
                   pixel: Pixel,
-                  isBatched=True,
-                  useNatural=True):
+                  isBatched=True):
         """
         Draws a `Pixel` onto the screen. If `isBatched` is False, refreshes the screen after drawing.
         If `useNatural` is True (default), converts from natural coordinate conventions (bottom-left origin, +y up)
         instead of using curses conventions (top-right origin, +y down).
         """
         x,y = pixel.position
+        if self.useNatural:
+            y = self.height - y
+
         colorPair = self.getColorPair(pixel.fg, pixel.bg)
         self.stdscr.addch(
             x,y,pixel.ch,curses.color_pair(colorPair)
         )
-        self.stdscr.noutrefresh()
+
+        if not isBatched:
+            self.refresh()
 
     def refresh(self):
         """
         Refreshes the screen, drawing all accumulated updates. Also updates internal stats.
         """
-        self.numUpdates += 1
+        self.numRefreshes += 1
+        self.stdscr.noutrefresh()
+        if self.doDebug:
+            self.debugWindow.noutrefresh()
         curses.doupdate()
 
     ### DEBUG
@@ -122,13 +132,14 @@ class Display:
         """
 
         colSuccSym = "C" if self._initColorResult else "c"
-        flags = colSuccSym
+        naturalSym = "N" if self.useNatural else "n"
+        flags = colSuccSym + naturalSym
 
         self.debugWindow.addnstr(
             0, 0, f"## DEBUG ## ({flags})", self.DEBUG_WIDTH, curses.A_REVERSE
         )
         self.debugWindow.addnstr(
-            1, 0, f"numUpdates: {self.numUpdates}", self.DEBUG_WIDTH, curses.A_REVERSE
+            1, 0, f"{self.width}x{self.height}", self.DEBUG_WIDTH, curses.A_REVERSE
         )
         self.debugWindow.addnstr(
             2, 0, f"numRefreshes: {self.numRefreshes}", self.DEBUG_WIDTH, curses.A_REVERSE
@@ -142,8 +153,6 @@ class Display:
         self.debugWindow.addnstr(
             5, 0, self.debugMessage, self.DEBUG_WIDTH, curses.A_REVERSE
         )
-        self.debugWindow.noutrefresh()
-        self.numRefreshes += 1
         if not isBatched:
             self.refresh()
 
