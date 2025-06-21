@@ -1,4 +1,6 @@
 import curses
+from display.Pixel import Pixel
+from display.ANSIColour import ANSIColour
 
 class Display:
     """
@@ -11,8 +13,8 @@ class Display:
     ### CONSTANTS
 
     REFRESH_RATE_HZ = 20
-    DEBUG_HEIGHT    = 5 # arbitrary
-    DEBUG_WIDTH     = 20 
+    DEBUG_HEIGHT    = 7 # arbitrary
+    DEBUG_WIDTH     = 30 
 
     ### INITIALISATION
 
@@ -29,6 +31,13 @@ class Display:
         self.doDebug = doDebug
         self.debugWindow = curses.newwin(self.DEBUG_HEIGHT, self.DEBUG_WIDTH, 0, 0)
 
+        ## CONFIG
+
+        curses.curs_set(0)
+        self._initColorResult = self._initColors() # used in debug
+        self._colorPairs = dict()
+        self._nextUnusedPair = 8
+
     def resetStats(self):
         """
         Resets all the stored statistics (e.g. number of refreshes since init) to their defaults.
@@ -36,6 +45,72 @@ class Display:
         self.numUpdates = 0       # number of global updates
         self.numRefreshes = 0     # number of window refreshes
         self.pixelsDrawn = 0      # number of pixels drawn
+        self.debugMessage = "Hello, world!"
+
+    def _initColors(self) -> bool:
+        """
+        Initialises all possible `ANSIColour` values in `curses` (codes 16-231). Called once when
+        `Display` is initialised. Returns true if the colours were successfully changed.
+        """
+        if not curses.can_change_color():
+            return False
+
+        for r in range(6):
+            for g in range(6):
+                for b in range(6):
+                    m = 36*r + 6*g + b + 16
+                    curses.init_color(m, 200*r, 200*g, 200*b)
+        
+        return True
+
+    def getColorPair(self,
+                      fg: ANSIColour = Pixel.FG_DEFAULT,
+                      bg: ANSIColour = Pixel.BG_DEFAULT) -> int:
+        """
+        Retrieves the color code corresponding to a given FG-BG pair. If none exists, assigns an unused
+        code to it. Returns 0 if there are no available codes (e.g. COLOR_PAIRS == 8)
+        """
+        if self._nextUnusedPair >= curses.COLOR_PAIRS:
+            return 0
+        codeHash = (fg.getCode(), bg.getCode())
+        self._colorPairs[codeHash] = self._nextUnusedPair
+        curses.init_pair(self._nextUnusedPair, fg.getCode(), bg.getCode())
+
+        self._nextUnusedPair += 1
+        return self._nextUnusedPair - 1
+
+    ### DRAWING
+
+    def drawPixel(self,
+                  pixel: Pixel,
+                  isBatched=True,
+                  useNatural=True):
+        """
+        Draws a `Pixel` onto the screen. If `isBatched` is False, refreshes the screen after drawing.
+        If `useNatural` is True (default), converts from natural coordinate conventions (bottom-left origin, +y up)
+        instead of using curses conventions (top-right origin, +y down).
+        """
+        x,y = pixel.position
+        colorPair = self.getColorPair(pixel.fg, pixel.bg)
+        self.stdscr.addch(
+            x,y,pixel.ch,curses.color_pair(colorPair)
+        )
+        self.stdscr.noutrefresh()
+
+    def refresh(self):
+        """
+        Refreshes the screen, drawing all accumulated updates. Also updates internal stats.
+        """
+        self.numUpdates += 1
+        curses.doupdate()
+
+    ### DEBUG
+    
+    def setDebugMessage(self, msg):
+        """
+        Sets the displayed message in the debug window to `msg`, cut off at `DEBUG_WIDTH` characters.
+        """
+        self.debugMessage = str(msg)
 
     def drawDebug(self,
                   isBatched=True):
@@ -43,8 +118,12 @@ class Display:
         Draws the debug window, a window positioned on the top left that displays program
         stats. If `isBatched` is False, refreshes the screen after drawing.
         """
+
+        colSuccSym = "C" if self._initColorResult else "c"
+        flags = colSuccSym
+
         self.debugWindow.addnstr(
-            0, 0, "## DEBUG ##", self.DEBUG_WIDTH, curses.A_REVERSE
+            0, 0, f"## DEBUG ## ({flags})", self.DEBUG_WIDTH, curses.A_REVERSE
         )
         self.debugWindow.addnstr(
             1, 0, f"numUpdates: {self.numUpdates}", self.DEBUG_WIDTH, curses.A_REVERSE
@@ -55,14 +134,14 @@ class Display:
         self.debugWindow.addnstr(
             3, 0, f"pixelsDrawn: {self.pixelsDrawn}", self.DEBUG_WIDTH, curses.A_REVERSE
         )
+        self.debugWindow.addnstr(
+            4, 0, f"colorPairs: {self._nextUnusedPair}/{curses.COLOR_PAIRS} ({curses.COLORS})", self.DEBUG_WIDTH, curses.A_REVERSE
+        )
+        self.debugWindow.addnstr(
+            5, 0, self.debugMessage, self.DEBUG_WIDTH, curses.A_REVERSE
+        )
         self.debugWindow.noutrefresh()
         self.numRefreshes += 1
         if not isBatched:
             self.refresh()
 
-    def refresh(self):
-        """
-        Refreshes the screen, drawing all accumulated updates. Also updates internal stats.
-        """
-        self.numUpdates += 1
-        curses.doupdate()

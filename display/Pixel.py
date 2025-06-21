@@ -1,5 +1,5 @@
 from typing import Tuple
-from ANSIColour import ANSIColour
+from display.ANSIColour import ANSIColour
 
 class Pixel:
     """

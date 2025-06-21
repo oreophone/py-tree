@@ -1,6 +1,6 @@
 from display.ANSIColour import ANSIColour
 from geometry.Geometry import Geometry
-from Pixel import Pixel
+from display.Pixel import Pixel
 from typing import Generator, List
 import random
 
