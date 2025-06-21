@@ -1,7 +1,9 @@
 import curses
 
+from display.Drawer import Drawer
 from display.Pixel import Pixel
 from display.ANSIColour import ANSIColour
+from typing import Iterable
 
 class Display:
     """
@@ -16,6 +18,7 @@ class Display:
     REFRESH_RATE_HZ = 20
     DEBUG_HEIGHT    = 7 # arbitrary
     DEBUG_WIDTH     = 30 
+
 
     ### INITIALISATION
 
@@ -84,11 +87,12 @@ class Display:
         self._nextUnusedPair += 1
         return self._nextUnusedPair - 1
 
+
     ### DRAWING
 
     def drawPixel(self,
                   pixel: Pixel,
-                  isBatched=True):
+                  isBatched = True):
         """
         Draws a `Pixel` onto the screen. If `isBatched` is False, refreshes the screen after drawing.
         If `useNatural` is True (default), converts from natural coordinate conventions (bottom-left origin, +y up)
@@ -100,11 +104,42 @@ class Display:
 
         colorPair = self.getColorPair(pixel.fg, pixel.bg)
         self.stdscr.addch(
-            x,y,pixel.ch,curses.color_pair(colorPair)
+            y,x,pixel.ch,curses.color_pair(colorPair)
         )
 
         if not isBatched:
             self.refresh()
+
+    def draw(self, 
+             *objs: Drawer | Iterable[Pixel] | Pixel,
+             isBatched = False):
+        """
+        Draws one or more `Drawer` instances onto the screen in order of appearance. If `isBatched` is False (default),
+        refreshes the screen after drawing.
+        """
+        for o in objs:
+            if type(o) == Drawer:
+                pixelIter = o.genPixels()
+            elif type(o) == Iterable[Pixel]:
+                pixelIter = o
+            elif type(o) == Pixel:
+                self.drawPixel(o, isBatched=True)
+                continue
+            else:
+                raise ValueError("Display.draw: invalid argument type - " + str(type(o)))
+            
+            for pixel in pixelIter:
+                self.drawPixel(pixel, isBatched=True)
+        
+        if not isBatched:
+            self.refresh()
+
+    def clearAll(self):
+        """
+        Clears the standard screen and deletes every stored object from the internal structures.
+        """
+        self.stdscr.clear()
+
 
     def refresh(self):
         """
@@ -113,8 +148,10 @@ class Display:
         self.numRefreshes += 1
         self.stdscr.noutrefresh()
         if self.doDebug:
+            self.drawDebug()
             self.debugWindow.noutrefresh()
         curses.doupdate()
+
 
     ### DEBUG
     
@@ -155,4 +192,5 @@ class Display:
         )
         if not isBatched:
             self.refresh()
+
 

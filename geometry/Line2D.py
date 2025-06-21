@@ -4,8 +4,8 @@ Supports 2-point, as well as centre/angle representations.
 """
 
 from typing import Tuple, List, Generator, Self
-from Geometry import Geometry
-from Point2D import Point2D
+from geometry.Geometry import Geometry
+from geometry.Point2D import Point2D
 import math
 class Line2D(Geometry):
     """
