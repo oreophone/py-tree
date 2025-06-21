@@ -18,6 +18,21 @@ class ANSIColour:
         self.r = r
         self.g = g
         self.b = b
+        self._code = self.getCode()
+
+    @classmethod
+    def fromCode(cls,
+                 code: int):
+        """
+        Initialises `ANSIColour` from a raw code in the range [0,255].
+        """
+        new = cls(0,0,0)
+        new._code = code
+        new.r = -1
+        new.g = -1
+        new.b = -1
+        return new
+
 
     @classmethod
     def fromRGB(cls,
@@ -35,6 +50,10 @@ class ANSIColour:
         """
         Returns the code of this colour as per ANSI specifications.
         """
-        return 16 + 36 * self.r + 6 * self.g + self.b
+        if self.r == -1 or self.g == -1 or self.b == -1:
+            return self._code
+
+        self._code = 16 + 36 * self.r + 6 * self.g + self.b
+        return self._code
 
     

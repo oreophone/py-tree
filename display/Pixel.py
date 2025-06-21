@@ -13,7 +13,7 @@ class Pixel:
     FG = lambda x: Pixel.E + f"38;5;{x}m" if x != None else ""
     BG = lambda x: Pixel.E + f"48;5;{x}m" if x != None else ""
     FG_DEFAULT = ANSIColour(5,5,5) # white
-    BG_DEFAULT = ANSIColour(0,0,0) # black
+    BG_DEFAULT = ANSIColour.fromCode(0) # transparent
 
 
     ### INIT

@@ -73,9 +73,11 @@ class Display:
         if self._nextUnusedPair >= curses.COLOR_PAIRS:
             return 0
         codeHash = (fg.getCode(), bg.getCode())
+        if codeHash in self._colorPairs:
+            return self._colorPairs[codeHash]
+
         self._colorPairs[codeHash] = self._nextUnusedPair
         curses.init_pair(self._nextUnusedPair, fg.getCode(), bg.getCode())
-
         self._nextUnusedPair += 1
         return self._nextUnusedPair - 1
 
