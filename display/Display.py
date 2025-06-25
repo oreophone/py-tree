@@ -107,6 +107,8 @@ class Display:
             y,x,pixel.ch,curses.color_pair(colorPair)
         )
 
+        self.pixelsDrawn += 1
+
         if not isBatched:
             self.refresh()
 

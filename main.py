@@ -43,8 +43,8 @@ def main(stdscr: window):
         )
         x.refresh()
 
-        time.sleep(0.04)
-        t += 0.2
+        time.sleep(1/60)
+        t += 0.1
     # TODO handle other stuff
 
 wrapper(main)

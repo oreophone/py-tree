@@ -131,9 +131,13 @@ class Line2D(Geometry):
         has start/end points outside the range [0,1]. A backwards interval
         (e.g [1,0]) will generate the points in reverse.
         """
+
         lineRise = int(self.p2.y) - int(self.p1.y)
         lineRun = int(self.p2.x) - int(self.p1.x)
         taxicabDist = abs(lineRise) + abs(lineRun)
+        if taxicabDist == 0:
+            yield self.p1.toIntegerPoint()
+            return
 
         if interval[0] < 0 or interval[0] > 1:
             raise IndexError(f"""self.genPoints: interval startpoint is outside
